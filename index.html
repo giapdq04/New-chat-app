@@ -69,6 +69,7 @@
   <form id="form" action="" style="display:none;">
     <input id="input" autocomplete="off" /><button>Send</button>
   </form>
+  <p id="typing"></p>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -78,6 +79,7 @@
   var input = document.getElementById('input');
   var nameForm = document.getElementById('nameForm');
   var nameInput = document.getElementById('nameInput');
+  var typing = document.getElementById('typing'); // Get the typing status element
   var userName = '';
   var socketId = '';
 
@@ -109,12 +111,25 @@
     }
   });
 
+  input.addEventListener('input', function() {
+    socket.emit('typing', { name: userName, socketId: socketId });
+  });
+
   socket.on('chat message', function(data) {
     var item = document.createElement('li');
     item.textContent = data.name + ': ' + data.message;
     item.style.color = data.color; // Set the color of the message
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
+  });
+
+  socket.on('typing', function(data) {
+    if (data.socketId !== socketId) { // Check if the typing event is from another user
+      typing.textContent = data.name + ' is typing...';
+      setTimeout(() => {
+        typing.textContent = '';
+      }, 1000);
+    }
   });
 
   // Fetch initial messages

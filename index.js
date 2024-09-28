@@ -44,6 +44,10 @@ io.on('connection', (socket) => {
     colors.push(userColors[socket.id]);
     delete userColors[socket.id];
   });
+
+  socket.on('typing', (data) => {
+    socket.broadcast.emit('typing', data); // clientsBroadcast typing event to all other 
+  });
 });
 
 server.listen(3000, () => {
